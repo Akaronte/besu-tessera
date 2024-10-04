@@ -1,0 +1,418 @@
+version: "3.8"
+services:
+  validator1:
+    image: hyperledger/besu:23.4.1
+    restart: "on-failure"
+    env_file:
+      - ./config/besu/.env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --p2p-host=$$(hostname -i) \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;
+    ports:
+      - 21001:8545/tcp
+      - 30303
+      - 9545
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=validator1,service.version=23.4.1
+    labels:
+      - "consensus=besu"
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/validator1:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.11
+  validator2:
+    image: hyperledger/besu:23.4.1
+    restart: "on-failure"
+    env_file:
+      - ./config/besu/.env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --p2p-host=$$(hostname -i) \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;    
+    ports:
+      - 21002:8545/tcp
+      - 30303
+      - 9545
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=validator2,service.version=23.4.1
+    labels:
+      - "consensus=besu"
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/validator2:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.12
+  validator3:
+    image: hyperledger/besu:23.4.1
+    restart: "on-failure"
+    env_file:
+      - ./config/besu/.env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --p2p-host=$$(hostname -i) \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;   
+    ports:
+      - 21003:8545/tcp
+      - 30303
+      - 9545
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=validator3,service.version=23.4.1
+    labels:
+      - "consensus=besu"
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/validator3:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.13 
+  validator4:
+    image: hyperledger/besu:23.4.1
+    restart: "on-failure"
+    env_file:
+      - ./config/besu/.env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT;   
+    ports:
+      - 21004:8545/tcp
+      - 30303
+      - 9545
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=validator4,service.version=23.4.1
+    labels:
+      - "consensus=besu"
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/validator4:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.14
+  rpcnode:
+    image: hyperledger/besu:23.4.1
+    restart: "on-failure"
+    env_file:
+      - ./config/besu/.env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;   
+    container_name: rpcnode
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=rpcnode,service.version=23.4.1
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/rpcnode:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+    ports:
+      - 8545:8545/tcp
+      - 8546:8546/tcp
+      - 9545
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.15
+
+  member1tessera:
+    build:
+      context: config/tessera
+      args:
+        TESSERA_VERSION: latest
+        TESSERA_MODE: orion
+        TESSERA_HOSTNAME: member1tessera
+    environment:
+      TESSERA_MODE: orion
+      TESSERA_HOSTNAME: member1tessera
+    expose:
+      - 9000
+      - 9080
+      - 9101
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--proxy", "off", "http://localhost:9000/upcheck"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    ports:
+      - 9081:9080
+    volumes:
+      - ./config/nodes/member1:/config/keys
+      - ./logs/tessera:/var/log/tessera/
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.26
+
+  member1besu:
+    restart: "on-failure"
+    image: hyperledger/besu:23.4.1
+    env_file:
+      - ./config/besu/.env
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=member1besu,service.version=23.4.1
+      - NODE_ID=6
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --p2p-host=$$(hostname -i) \
+        --privacy-enabled \
+        --privacy-url=http://member1tessera:9101 \
+        --privacy-public-key-file=/opt/besu/keys/tm.pub \
+        --privacy-onchain-groups-enabled=false \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/member1:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+      - member1tessera
+    ports:
+      - 20000:8545/tcp
+      - 20001:8546/tcp
+      - 9545
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.16
+
+  member2tessera:
+    build:
+      context: config/tessera
+      args:
+        TESSERA_VERSION: latest
+        TESSERA_MODE: orion
+        TESSERA_HOSTNAME: member2tessera
+    environment:
+      TESSERA_MODE: orion
+      TESSERA_HOSTNAME: member2tessera
+    expose:
+      - 9000
+      - 9080
+      - 9101
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--proxy", "off", "http://localhost:9000/upcheck"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    ports:
+      - 9082:9080
+    volumes:
+      - ./config/nodes/member2:/config/keys
+      - ./logs/tessera:/var/log/tessera/
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.27
+
+  member2besu:
+    restart: "on-failure"
+    image: hyperledger/besu:23.4.1
+    env_file:
+      - ./config/besu/.env
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=member2besu,service.version=23.4.1
+      - NODE_ID=7
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --p2p-host=$$(hostname -i) \
+        --privacy-enabled \
+        --privacy-url=http://member2tessera:9101 \
+        --privacy-public-key-file=/opt/besu/keys/tm.pub \
+        --privacy-onchain-groups-enabled=false \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/member2:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+      - member2tessera
+    ports:
+      - 20002:8545/tcp
+      - 20003:8546/tcp
+      - 9545
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.17
+
+  member3tessera:
+    build:
+      context: config/tessera
+      args:
+        TESSERA_VERSION: latest
+        TESSERA_MODE: orion
+        TESSERA_HOSTNAME: member3tessera
+    environment:
+      TESSERA_MODE: orion
+      TESSERA_HOSTNAME: member3tessera
+    expose:
+      - 9000
+      - 9080
+      - 9101
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--proxy", "off", "http://localhost:9000/upcheck"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    ports:
+      - 9083:9080
+    volumes:
+      - ./config/nodes/member3:/config/keys
+      - ./logs/tessera:/var/log/tessera/
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.28
+
+  member3besu:
+    restart: "on-failure"
+    image: hyperledger/besu:23.4.1
+    env_file:
+      - ./config/besu/.env
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=member3besu,service.version=23.4.1
+      - NODE_ID=8
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/besu/bin/besu \
+        --config-file=/config/config.toml \
+        --p2p-host=$$(hostname -i) \
+        --privacy-enabled \
+        --privacy-url=http://member3tessera:9101 \
+        --privacy-public-key-file=/opt/besu/keys/tm.pub \
+        --privacy-onchain-groups-enabled=false \
+        --rpc-http-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT \
+        --rpc-ws-api=EEA,WEB3,ETH,NET,TRACE,DEBUG,ADMIN,TXPOOL,PRIV,PERM,QBFT ;
+    volumes:
+      - ./config/besu/:/config
+      - ./config/nodes/member3:/opt/besu/keys
+      - ./logs/besu:/tmp/besu
+    depends_on:
+      - validator1
+      - member3tessera
+    ports:
+      - 20004:8545/tcp
+      - 20005:8546/tcp
+      - 9545
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.18
+        
+  explorer:
+    image: consensys/quorum-explorer:latest
+    volumes:
+      - ./quorum-explorer/config.json:/app/config.json
+      - ./quorum-explorer/env:/app/.env.production
+    depends_on:
+      - rpcnode
+    ports:
+      - 25000:25000/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.31
+
+  prometheus:
+    image: "prom/prometheus:v2.46.0"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.32
+
+  grafana:
+    image: "grafana/grafana:10.1.0"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_USERS_VIEWERS_CAN_EDIT=true
+    volumes:
+      - ./config/grafana/provisioning/:/etc/grafana/provisioning/
+      - grafana:/var/lib/grafana
+    ports:
+      - 3000:3000/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.33
+
+  loki:
+    image: "grafana/loki:2.8.4"
+    volumes:
+      - ./loki/loki.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - 3100:3100/tcp
+    networks:
+      quorum-dev-quickstart:
+        ipv4_address: 172.168.16.34
+
+volumes:
+  public-keys:
+  prometheus:
+  grafana:
+  splunk:
+  ethlogger:
+  blockscoutpostgres:
+
+networks:
+  quorum-dev-quickstart:
+    name: quorum-dev-quickstart
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.168.16.0/24
+

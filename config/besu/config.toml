@@ -1,0 +1,35 @@
+genesis-file="/config/genesis.json"
+node-private-key-file="/opt/besu/keys/nodekey"
+logging="INFO"
+data-path="/opt/besu/data"
+host-allowlist=["*"]
+min-gas-price=0
+
+# rpc
+rpc-http-enabled=true
+rpc-http-host="0.0.0.0"
+rpc-http-port=8545
+rpc-http-cors-origins=["*"]
+
+# ws
+rpc-ws-enabled=true
+rpc-ws-host="0.0.0.0"
+rpc-ws-port=8546
+
+# graphql
+graphql-http-enabled=true
+graphql-http-host="0.0.0.0"
+graphql-http-port=8547
+graphql-http-cors-origins=["*"]
+
+# metrics
+metrics-enabled=true
+metrics-host="0.0.0.0"
+metrics-port=9545
+
+# permissions
+#permissions-nodes-config-file-enabled=true
+#permissions-nodes-config-file="/config/permissions_config.toml"
+
+# bootnodes
+bootnodes=["enode://2b5edad911f5aac81344515686426d4b9bff3ea91ae6ee5a424f87c2d11bdffbe139c6e54b9efa1d30fa1e4255b03c49899bf940ce224e63f93c58d7d92bd1d3@172.168.16.11:30303"]
