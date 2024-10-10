@@ -27,7 +27,7 @@ services:
       - ./config/nodes/validator1:/opt/besu/keys
       - ./logs/besu:/tmp/besu
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.11
   validator2:
     image: hyperledger/besu:23.4.1
@@ -58,7 +58,7 @@ services:
     depends_on:
       - validator1
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.12
   validator3:
     image: hyperledger/besu:23.4.1
@@ -89,7 +89,7 @@ services:
     depends_on:
       - validator1
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.13 
   validator4:
     image: hyperledger/besu:23.4.1
@@ -119,7 +119,7 @@ services:
     depends_on:
       - validator1
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.14
   rpcnode:
     image: hyperledger/besu:23.4.1
@@ -148,7 +148,7 @@ services:
       - 8546:8546/tcp
       - 9545
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.15
 
   member1tessera:
@@ -178,7 +178,7 @@ services:
       - ./config/nodes/member1:/config/keys
       - ./logs/tessera:/var/log/tessera/
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.26
 
   member1besu:
@@ -214,7 +214,7 @@ services:
       - 20001:8546/tcp
       - 9545
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.16
 
   member2tessera:
@@ -244,7 +244,7 @@ services:
       - ./config/nodes/member2:/config/keys
       - ./logs/tessera:/var/log/tessera/
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.27
 
   member2besu:
@@ -280,7 +280,7 @@ services:
       - 20003:8546/tcp
       - 9545
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.17
 
   member3tessera:
@@ -310,7 +310,7 @@ services:
       - ./config/nodes/member3:/config/keys
       - ./logs/tessera:/var/log/tessera/
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.28
 
   member3besu:
@@ -346,7 +346,7 @@ services:
       - 20005:8546/tcp
       - 9545
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.18
         
   explorer:
@@ -359,7 +359,7 @@ services:
     ports:
       - 25000:25000/tcp
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.31
 
   prometheus:
@@ -372,7 +372,7 @@ services:
     ports:
       - 9090:9090/tcp
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.32
 
   grafana:
@@ -386,7 +386,7 @@ services:
     ports:
       - 3000:3000/tcp
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.33
 
   loki:
@@ -397,20 +397,16 @@ services:
     ports:
       - 3100:3100/tcp
     networks:
-      quorum-dev-quickstart:
+      dev-network:
         ipv4_address: 172.168.16.34
 
 volumes:
-  public-keys:
   prometheus:
   grafana:
-  splunk:
-  ethlogger:
-  blockscoutpostgres:
 
 networks:
-  quorum-dev-quickstart:
-    name: quorum-dev-quickstart
+  dev-network:
+    name: dev-network
     driver: bridge
     ipam:
       config:
