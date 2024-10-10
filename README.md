@@ -13,7 +13,7 @@ git clone https://github.com/Akaronte/besu-tessera.git
 cd besu-tessera
 code .
 ```
-Fix new lines change CRLF to LF
+Fix new lines change CRLF to LF in file ./config/tessera/generate.sh
 ```
 docker-compose up -d
 ```
